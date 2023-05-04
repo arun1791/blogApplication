@@ -1,16 +1,21 @@
 package com.blog.services.impl;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.blog.config.AppConstant;
+import com.blog.entities.Role;
 import com.blog.entities.User;
 import com.blog.exception.ResourcesNotoundExcpetion;
 import com.blog.payloads.UserDto;
+import com.blog.repository.RoleRepsitory;
 import com.blog.repository.UserRepository;
 import com.blog.services.UserService;
 
@@ -22,6 +27,10 @@ public class UserServiceImpl  implements UserService{
 	
 	@Autowired
 	private UserRepository userRepository;
+	@Autowired
+	private PasswordEncoder passwordEncoder;
+	@Autowired
+	private RoleRepsitory roleRepsitory;
 
 	@Override
 	public UserDto createuser(UserDto userDto) {
@@ -69,6 +78,18 @@ public class UserServiceImpl  implements UserService{
 		User	user =this.userRepository.findById(userId).orElseThrow(()-> new ResourcesNotoundExcpetion("User","Id",userId));
 		this.userRepository.delete(user);
 	}
+	@Override
+	public UserDto registerNewUser(UserDto userDto) {
+		User user = this.mapper.map(userDto, User.class);
+		//endoed the password
+		user.setPassword(this.passwordEncoder.encode(user.getPassword()));
+		//roles
+		Role role = this.roleRepsitory.findById(AppConstant.NORMAL_USER).get();
+		user.getRoles().add(role);
+		User newUser=this.userRepository.save(user);
+		return this.mapper.map(newUser, UserDto.class);
+	}
+
 	
 	private User dtoToUser(UserDto userDto)
 	{
@@ -95,4 +116,5 @@ public class UserServiceImpl  implements UserService{
 			
 	}
 
+	
 }
