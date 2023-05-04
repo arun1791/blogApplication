@@ -15,8 +15,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.blog.config.AppConstant;
 import com.blog.payloads.ApiResponse;
 import com.blog.payloads.PostDto;
+import com.blog.payloads.PostResponse;
 import com.blog.services.PostService;
 
 @RestController
@@ -39,7 +41,7 @@ public class PostController {
 	@GetMapping("/user/{userId}/posts")
 	public ResponseEntity< List<PostDto>>getPostByUser(@PathVariable Integer userId){
 		
-		List<PostDto> posts = this.postService.getPostByUser(userId);
+		List<PostDto> posts = this.postService.getPostsByUser(userId);
 		return new ResponseEntity<List<PostDto>>(posts,HttpStatus.OK);
 	}
 	
@@ -47,20 +49,21 @@ public class PostController {
 		@GetMapping("/category/{categoryId}/posts")
 		public ResponseEntity< List<PostDto>>getPostByCategory(@PathVariable Integer categoryId){
 			
-			List<PostDto> posts = this.postService.getPostBYCategory	(categoryId);
+			List<PostDto> posts = this.postService.getPostsByCategory	(categoryId);
 			return new ResponseEntity<List<PostDto>>(posts,HttpStatus.OK);
 		}
 
 		//getall Psot
 		
 		@GetMapping("/posts/")
-		public ResponseEntity< List<PostDto>>getAllpost(
-				@RequestParam(value = "pageNumber",defaultValue = "10",required = false) Integer pageNumber,
-				@RequestParam(value = "pageSize",defaultValue = "1",required = false) Integer pageSize
+		public ResponseEntity<PostResponse> getAllpost(
+				@RequestParam(value = "pageNumber",defaultValue = AppConstant.PAGE_NUMBER,required = false) Integer pageNumber,
+				@RequestParam(value = "pageSize",defaultValue = "10",required = false) Integer pageSize,
+				@RequestParam(value = "sortBy",defaultValue = "postId",required = false)String sortBy
 				){
 			
-			List<PostDto> posts = this.postService.getAllPosts(pageNumber,pageSize);
-			return new ResponseEntity<List<PostDto>>(posts,HttpStatus.OK);
+			 PostResponse postResponse = this.postService.getAllPosts(pageNumber,pageSize,sortBy);
+			return new ResponseEntity<PostResponse>(postResponse,HttpStatus.OK);
 		}
 		
 		@GetMapping("/posts/{postId}")
@@ -86,6 +89,15 @@ public class PostController {
 			
 			return new ResponseEntity<PostDto>(updatePost,HttpStatus.OK);
 			
+		}
+		
+		//search
+		
+		@GetMapping("/posts/search/{keywords}")
+		public ResponseEntity<List<PostDto>>searchByTitel( @PathVariable String keywords )
+		{
+			List<PostDto> result = this.postService.searchPosts(keywords);
+			return new ResponseEntity<List<PostDto>>(result,HttpStatus.OK);
 		}
 		
 }

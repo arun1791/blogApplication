@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.blog.entities.Category;
@@ -17,6 +18,7 @@ import com.blog.entities.Post;
 import com.blog.entities.User;
 import com.blog.exception.ResourcesNotoundExcpetion;
 import com.blog.payloads.PostDto;
+import com.blog.payloads.PostResponse;
 import com.blog.repository.CategoryRepository;
 import com.blog.repository.PostRespository;
 import com.blog.repository.UserRepository;
@@ -76,17 +78,24 @@ public class PostServiceImpl implements PostService {
 	}
 
 	@Override
-	public List<PostDto> getAllPosts(int pageNumber,int pagaSize) {
+	public PostResponse getAllPosts(int pageNumber,int pagaSize,String sortBy) {
 		
 //		int pagaSize=5;
 //		int pageNumber=1;
-		Pageable p=PageRequest.of(pageNumber, pagaSize);
+		Pageable p=PageRequest.of(pageNumber, pagaSize, Sort.by(sortBy).ascending());
 		
 		Page<Post> pagePost = this.postRespository.findAll(p);
 		
 		List<Post> allpost = pagePost.getContent();
-		List<PostDto> postdtos = allpost.stream().map(post->this.mapper.map(allpost, PostDto.class)).collect(Collectors.toList());
-		return postdtos;
+		List<PostDto> postdtos = allpost.stream().map(post->this.mapper.map(post, PostDto.class)).collect(Collectors.toList());
+		PostResponse postResponse=new PostResponse();
+		postResponse.setContent(postdtos);
+		postResponse.setPageNumber(pagePost.getNumber());
+		postResponse.setPageSize(pagePost.getSize());
+		postResponse.setTotalElement(pagePost.getTotalElements());
+		postResponse.setTotalPages(pagePost.getTotalPages());
+		postResponse.setLastPage(pagePost.isLast());
+		return postResponse;
 	}
 
 	@Override
@@ -98,30 +107,33 @@ public class PostServiceImpl implements PostService {
 	}
 
 	@Override
-	public List<PostDto> getPostBYCategory(Integer categoryId) {
+	public List<PostDto> getPostsByCategory(Integer categoryId) {
 		Category cat=this.categoryRepository.findById(categoryId)
 				.orElseThrow(()->new ResourcesNotoundExcpetion("Category", "caterotyId", categoryId));
 		List<Post> posts = this.postRespository.findByCategory(cat);
 		
-		List<PostDto> postDatos = posts.stream().map((post)->this.mapper.map(posts, PostDto.class)).collect(Collectors.toList());
+		List<PostDto> postDatos = posts.stream().map((post)->this.mapper.map(post, PostDto.class)).collect(Collectors.toList());
 		return postDatos;
 	}
 
 	@Override
-	public List<PostDto> getPostByUser(Integer userId) {
+	public List<PostDto> getPostsByUser(Integer userId) {
 
 		User user = this.userRepository.findById(userId)
 				.orElseThrow(()-> new ResourcesNotoundExcpetion("User", "User Id", userId));
 		List<Post> posts = this.postRespository.findByUser(user);
 		
-		List<PostDto> postDatos = posts.stream().map((post)->this.mapper.map(posts, PostDto.class)).collect(Collectors.toList());
+		List<PostDto> postDatos = posts.stream().map((post)->this.mapper.map(post, PostDto.class)).collect(Collectors.toList());
 		return postDatos;
 	}
 
 	@Override
-	public List<Post> searchPosts(String keyword) {
-		// TODO Auto-generated method stub
-		return null;
+	public List<PostDto> searchPosts(String keyword) {
+		
+		List<Post> postsold = null;
+		List<Post> posts = this.postRespository.findByTitleContaining(keyword);
+		List<PostDto> postDtos = posts.stream().map((post)->this.mapper.map(post, PostDto.class)).collect(Collectors.toList());
+		return postDtos;
 	}
 
 }
