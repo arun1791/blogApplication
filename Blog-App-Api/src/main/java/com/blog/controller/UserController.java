@@ -3,6 +3,8 @@ package com.blog.controller;
 import java.util.List;
 import java.util.Map;
 
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,7 +23,6 @@ import com.blog.payloads.ApiResponse;
 import com.blog.payloads.UserDto;
 import com.blog.services.UserService;
 
-import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/users")

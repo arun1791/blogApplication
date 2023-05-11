@@ -22,14 +22,16 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 
 import com.blog.security.JwtAuthenticationEntryPoint;
 import com.blog.security.JwtAuthenticationFilter;
 
+@SuppressWarnings("deprecation")
 @Configuration
 @EnableWebSecurity
-@EnableGlobalMethodSecurity(prePostEnabled = true)
 @EnableWebMvc
+@EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfig  {
 	
 	public static final String[] PUBLIC_URLS= {
@@ -75,10 +77,12 @@ public class SecurityConfig  {
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception
 	{
-		httpSecurity.csrf().disable()
+		httpSecurity.csrf().disable()	
 					.authorizeHttpRequests()
-					.requestMatchers(HttpMethod.GET).permitAll()
-					.requestMatchers(PUBLIC_URLS).permitAll()
+					.antMatchers(HttpMethod.GET).permitAll()
+//					.requestMatchers("/v3/api-docs").permitAll()
+//					.requestMatchers("/**").hasRole("USER").permitAll()
+					.antMatchers(PUBLIC_URLS).permitAll()
 					.anyRequest()
 					.authenticated()
 					.and()
@@ -107,9 +111,16 @@ public class SecurityConfig  {
 //	}
 	
 	@Bean
-	  AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+	  public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
 
 	    return authenticationConfiguration.getAuthenticationManager();
 	  }
  
+	public void addResourceHandlers(ResourceHandlerRegistry registry) {
+	    registry.addResourceHandler("swagger-ui.html")
+	      .addResourceLocations("classpath:/META-INF/resources/");
+
+	    registry.addResourceHandler("/webjars/**")
+	      .addResourceLocations("classpath:/META-INF/resources/webjars/");
+	}
 }

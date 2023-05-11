@@ -2,12 +2,7 @@ package com.blog.payloads;
 
 import java.util.Date;
 
-import com.blog.entities.Category;
-import com.blog.entities.User;
-
-import jakarta.persistence.ManyToOne;
 import lombok.AllArgsConstructor;
-import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;

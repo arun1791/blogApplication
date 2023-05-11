@@ -14,8 +14,13 @@ import com.blog.config.AppConstant;
 import com.blog.entities.Role;
 import com.blog.repository.RoleRepsitory;
 
+//import springfox.documentation.oas.annotations.EnableOpenApi;
+//import springfox.documentation.swagger2.annotations.EnableSwagger2;
+
 
 @SpringBootApplication
+//@EnableSwagger2
+//@EnableOpenApi
 public class BlogAppApiApplication implements CommandLineRunner {
 	@Autowired
 	private  PasswordEncoder passwordEncoder;
